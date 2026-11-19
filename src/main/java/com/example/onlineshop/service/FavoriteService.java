@@ -7,6 +7,7 @@ import com.example.onlineshop.entity.Product;
 import com.example.onlineshop.entity.ProductVariant;
 import com.example.onlineshop.entity.User;
 import com.example.onlineshop.exception.ProductNotFoundException;
+import com.example.onlineshop.exception.UserNotFoundException;
 import com.example.onlineshop.repository.FavoriteRepository;
 import com.example.onlineshop.repository.ProductRepository;
 import com.example.onlineshop.repository.ProductVariantRepository;
@@ -32,8 +33,7 @@ public class FavoriteService {
             Long productId
     ) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("Username " + username + " not found"));
+                .orElseThrow(UserNotFoundException::new);
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() ->
@@ -56,7 +56,7 @@ public class FavoriteService {
     public List<FavoriteResponse> getFavorites(String username) {
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("Username " + username + " not found"));
+                .orElseThrow(UserNotFoundException::new);
 
         List<Favorite> favorites = favoriteRepository.findByUserId(user.getId());
 
@@ -69,7 +69,7 @@ public class FavoriteService {
     public void deleteFavorite(String username, Long productId) {
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("Username " + username + " not found"));
+                        .orElseThrow(UserNotFoundException::new);
 
         favoriteRepository
                 .findByUserIdAndProductId(user.getId(), productId)
@@ -80,7 +80,7 @@ public class FavoriteService {
     public boolean isFavorite(String username, Long productId) {
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("Username " + username + " not found"));
+                .orElseThrow(UserNotFoundException::new);
 
         return favoriteRepository.existsByUserIdAndProductId(user.getId(), productId);
     }

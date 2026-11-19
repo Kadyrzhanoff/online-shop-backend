@@ -4,10 +4,7 @@ import com.example.onlineshop.dto.AddToCartRequest;
 import com.example.onlineshop.dto.CartItemResponse;
 import com.example.onlineshop.dto.CartResponse;
 import com.example.onlineshop.entity.*;
-import com.example.onlineshop.exception.CartItemNotFoundException;
-import com.example.onlineshop.exception.InsufficientStockException;
-import com.example.onlineshop.exception.StockNotFoundException;
-import com.example.onlineshop.exception.UserAlreadyExistsException;
+import com.example.onlineshop.exception.*;
 import com.example.onlineshop.repository.CartItemRepository;
 import com.example.onlineshop.repository.CartRepository;
 import com.example.onlineshop.repository.UserRepository;
@@ -35,7 +32,7 @@ public class CartService {
     ) {
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("Username not found"));
+                .orElseThrow(UserNotFoundException::new);
 
         Cart cart = cartRepository.findByUserId(user.getId())
                 .orElseGet(() ->{
@@ -82,7 +79,7 @@ public class CartService {
     public CartResponse getCart(String username){
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserAlreadyExistsException("Username not found"));
+                .orElseThrow(UserNotFoundException::new);
 
         Cart cart = cartRepository.findByUserId(user.getId())
                 .orElse(null);
@@ -126,7 +123,7 @@ public class CartService {
     ){
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("Username not found"));
+                .orElseThrow(UserNotFoundException::new);
 
         Cart cart = cartRepository.findByUserId((user.getId()))
                 .orElseThrow(() -> new CartItemNotFoundException(itemId));
@@ -149,9 +146,7 @@ public class CartService {
     public void deleteCartItem(String username, Long itemId){
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("User not found")
-                );
+                .orElseThrow(UserNotFoundException::new);
 
         Cart cart = cartRepository.findByUserId(user.getId())
                 .orElseThrow(() ->
@@ -169,8 +164,7 @@ public class CartService {
     public void clearCart(String username){
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("Username not found"));
+                .orElseThrow(UserNotFoundException::new);
 
         Cart cart = cartRepository.findByUserId(user.getId())
                 .orElse(null);
