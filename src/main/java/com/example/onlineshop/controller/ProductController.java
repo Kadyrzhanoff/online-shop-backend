@@ -5,7 +5,7 @@ import com.example.onlineshop.dto.ProductCreateRequest;
 import com.example.onlineshop.dto.ProductResponse;
 import com.example.onlineshop.dto.ProductUpdateRequest;
 import com.example.onlineshop.dto.ProductVariantRequest;
-import com.example.onlineshop.service.ProductService;
+import com.example.onlineshop.service.impl.ProductServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ProductController {
 
-    private final ProductService productService;
+    private final ProductServiceImpl productService;
 
     @PostMapping
     public ResponseEntity<ProductResponse> createProduct(

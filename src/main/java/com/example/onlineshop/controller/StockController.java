@@ -3,7 +3,7 @@ package com.example.onlineshop.controller;
 
 import com.example.onlineshop.dto.StockResponse;
 import com.example.onlineshop.dto.StockUpdateRequest;
-import com.example.onlineshop.service.StockService;
+import com.example.onlineshop.service.impl.StockServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class StockController {
 
-    private final StockService stockService;
+    private final StockServiceImpl stockService;
 
     @PatchMapping("/{id}/set")
     public ResponseEntity<StockResponse> setStock(

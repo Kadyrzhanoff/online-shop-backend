@@ -3,7 +3,7 @@ package com.example.onlineshop.controller;
 
 import com.example.onlineshop.dto.LoginRequest;
 import com.example.onlineshop.dto.RegisterRequest;
-import com.example.onlineshop.service.AuthService;
+import com.example.onlineshop.service.impl.AuthServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,7 +19,7 @@ import com.example.onlineshop.dto.AuthResponse;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService;
+    private final AuthServiceImpl authService;
 
     @PostMapping("/register")
     public ResponseEntity<String> register(
