@@ -1,7 +1,7 @@
 package com.example.onlineshop.controller;
 
 import com.example.onlineshop.dto.FavoriteResponse;
-import com.example.onlineshop.service.FavoriteService;
+import com.example.onlineshop.service.impl.FavoriteServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -14,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FavoriteController {
 
-    private final FavoriteService favoriteService;
+    private final FavoriteServiceImpl favoriteService;
 
     @PostMapping("/{productId}")
     public ResponseEntity<FavoriteResponse> addFavorite(

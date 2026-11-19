@@ -4,7 +4,7 @@ package com.example.onlineshop.controller;
 import com.example.onlineshop.dto.ProductResponse;
 import com.example.onlineshop.entity.ClothingSize;
 import com.example.onlineshop.entity.ProductSort;
-import com.example.onlineshop.service.ProductService;
+import com.example.onlineshop.service.impl.ProductServiceImpl;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class CatalogController {
 
-    private final ProductService productService;
+    private final ProductServiceImpl productService;
 
     @GetMapping
     public ResponseEntity<Page<ProductResponse>> getProducts(

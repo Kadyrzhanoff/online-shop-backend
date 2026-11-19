@@ -3,7 +3,7 @@ package com.example.onlineshop.controller;
 
 import com.example.onlineshop.dto.ProductResponse;
 import com.example.onlineshop.dto.VariantUpdateRequest;
-import com.example.onlineshop.service.ProductService;
+import com.example.onlineshop.service.impl.ProductServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class VariantController {
 
-    private final ProductService productService;
+    private final ProductServiceImpl productService;
 
     @PatchMapping("/{variantId}")
     public ResponseEntity<ProductResponse> updateVariant(

@@ -5,21 +5,19 @@ import com.example.onlineshop.dto.AddToCartRequest;
 import com.example.onlineshop.dto.CartItemResponse;
 import com.example.onlineshop.dto.CartResponse;
 import com.example.onlineshop.dto.UpdateCartItemRequest;
-import com.example.onlineshop.service.CartService;
+import com.example.onlineshop.service.impl.CartServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-
 @RestController
 @RequestMapping("/api/cart")
 @RequiredArgsConstructor
 public class CartController {
 
-    private final CartService cartService;
+    private final CartServiceImpl cartService;
 
     @PostMapping("/items")
     public ResponseEntity<CartItemResponse> addToCart(
