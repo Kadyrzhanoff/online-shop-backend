@@ -48,6 +48,7 @@ public class ProductServiceImpl implements ProductService {
         product.setDescription(request.description());
         product.setPrice(request.price());
         product.setCategory(category);
+        product.setActive(true);
 
         Product savedProduct = productRepository.save(product);
 
@@ -139,7 +140,7 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = true)
     public ProductResponse getProductById(Long id) {
 
-        Product product = productRepository.findById(id)
+        Product product = productRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() ->
                         new ProductNotFoundException(id));
 
@@ -171,9 +172,9 @@ public class ProductServiceImpl implements ProductService {
                     categoryId, clothingSize, pageable
             );
         } else if (categoryId != null) {
-            products = productRepository.findByCategoryId(categoryId, pageable);
+            products = productRepository.findByCategoryIdAndActiveTrue(categoryId, pageable);
         }  else {
-            products = productRepository.findAll(pageable);
+            products = productRepository.findByActiveTrue(pageable);
         }
 
         return products.map(this::toProductResponse);
@@ -292,20 +293,13 @@ public class ProductServiceImpl implements ProductService {
         productVariantRepository.delete(variant);
     }
 
+    @Override
     @Transactional
     public void deleteProduct(Long productId) {
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
 
-        List<ProductVariant> variants =
-                productVariantRepository.findByProductId(productId);
-
-        for (ProductVariant variant : variants) {
-            variantStockRepository.deleteByVariantId(variant.getId());
-            productVariantRepository.delete(variant);
-        }
-
-        productRepository.delete(product);
+        product.setActive(false);
     }
 }

@@ -25,4 +25,6 @@ public interface ProductService {
     ProductResponse updateVariant(Long variantId, VariantUpdateRequest request);
 
     void deleteVariant(Long variantId);
+
+    void deleteProduct(Long productId);
 }
