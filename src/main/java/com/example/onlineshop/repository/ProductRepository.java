@@ -8,19 +8,26 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    Page<Product> findByCategoryId(
+    Page<Product> findByActiveTrue(Pageable pageable);
+
+    Page<Product> findByCategoryIdAndActiveTrue(
             Long categoryId,
             Pageable pageable
     );
+
+    Optional<Product> findByIdAndActiveTrue(Long id);
 
     @Query("""
     SELECT DISTINCT p
     FROM Product p
     JOIN ProductVariant pv ON pv.product = p
     JOIN VariantStock vs ON vs.variant = pv
-    WHERE (:categoryId IS NULL OR p.category.id = :categoryId)
+    WHERE p.active = true 
+      AND (:categoryId IS NULL OR p.category.id = :categoryId)
       AND vs.size = :size
       AND vs.quantity > 0
     """)
