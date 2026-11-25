@@ -48,6 +48,8 @@ public class CartServiceImpl implements CartService {
                 .orElseThrow(() ->
                         new StockNotFoundException(request.stockId()));
 
+        validateProductAvailability(stock);
+
         CartItem cartItem = cartItemRepository
                 .findByCartIdAndStockId(
                         cart.getId(),
@@ -103,10 +105,12 @@ public class CartServiceImpl implements CartService {
                 .toList();
 
         BigDecimal totalPrice = itemResponses.stream()
+                .filter(CartItemResponse::available)
                 .map(CartItemResponse::subtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         int totalItems = itemResponses.stream()
+                .filter(CartItemResponse::available)
                 .mapToInt(CartItemResponse::quantity)
                 .sum();
 
@@ -137,6 +141,12 @@ public class CartServiceImpl implements CartService {
                 .orElseThrow(() -> new CartItemNotFoundException(itemId));
 
         VariantStock stock = item.getStock();
+
+        validateProductAvailability(stock);
+
+        if (quantity > stock.getQuantity()) {
+            throw new InsufficientStockException(stock.getQuantity());
+        }
 
         if(quantity > stock.getQuantity()) {
             throw new InsufficientStockException(stock.getQuantity());
@@ -188,6 +198,10 @@ public class CartServiceImpl implements CartService {
         ProductVariant variant = stock.getVariant();
         Product product = variant.getProduct();
 
+        boolean available =
+                Boolean.TRUE.equals(product.getActive())
+                        && stock.getQuantity() >= item.getQuantity();
+
         BigDecimal subtotal = product.getPrice()
                 .multiply(BigDecimal.valueOf(item.getQuantity()));
 
@@ -199,7 +213,17 @@ public class CartServiceImpl implements CartService {
                 stock.getSize().name(),
                 product.getPrice(),
                 item.getQuantity(),
-                subtotal
+                subtotal,
+                available
         );
+    }
+
+    private void validateProductAvailability(VariantStock stock) {
+
+        Product product = stock.getVariant().getProduct();
+
+        if (!Boolean.TRUE.equals(product.getActive())) {
+            throw new ProductUnavailableException(product.getId());
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.onlineshop.service.impl;
 
+import com.example.onlineshop.dto.AdminProductResponse;
 import com.example.onlineshop.dto.*;
 import com.example.onlineshop.entity.*;
 import com.example.onlineshop.exception.ProductNotFoundException;
@@ -133,6 +134,23 @@ public class ProductServiceImpl implements ProductService {
                 product.getCategory().getName(),
                 totalStock,
                 variantResponses
+        );
+    }
+
+    private AdminProductResponse toAdminProductResponse(Product product) {
+
+        ProductResponse response = toProductResponse(product);
+
+        return new AdminProductResponse(
+                response.id(),
+                response.name(),
+                response.description(),
+                response.price(),
+                response.categoryId(),
+                response.categoryName(),
+                product.getActive(),
+                response.totalStock(),
+                response.variants()
         );
     }
 
@@ -301,5 +319,48 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new ProductNotFoundException(productId));
 
         product.setActive(false);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AdminProductResponse getAdminProductById(Long id){
+
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
+
+        return toAdminProductResponse(product);
+    }
+
+    @Override
+    @Transactional
+    public AdminProductResponse restoreProduct(Long id){
+
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
+
+        product.setActive(true);
+
+        return toAdminProductResponse(product);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<AdminProductResponse> getAdminProducts(
+            Boolean active,
+            int page,
+            int size
+    ) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+
+        Page<Product> products;
+
+        if (active != null) {
+            products = productRepository.findByActive(active, pageable);
+        } else {
+            products = productRepository.findAll(pageable);
+        }
+
+        return products.map(this::toAdminProductResponse);
     }
 }

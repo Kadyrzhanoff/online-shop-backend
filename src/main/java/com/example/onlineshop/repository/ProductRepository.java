@@ -36,4 +36,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("size") ClothingSize size,
             Pageable pageable
     );
+
+    Page<Product> findByActive(Boolean active, Pageable pageable);
 }

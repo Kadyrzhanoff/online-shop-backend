@@ -9,9 +9,9 @@ import java.util.Optional;
 
 public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
 
-    List<Favorite> findByUserId(Long userId);
+    List<Favorite> findByUserIdAndProductActiveTrue(Long userId);
 
     Optional<Favorite> findByUserIdAndProductId(Long userId, Long productId);
 
-    boolean existsByUserIdAndProductId(Long userId, Long productId);
+    boolean existsByUserIdAndProductIdAndProductActiveTrue(Long userId, Long productId);
 }
