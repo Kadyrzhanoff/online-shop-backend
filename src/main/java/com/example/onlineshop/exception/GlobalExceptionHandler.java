@@ -190,6 +190,7 @@ public class GlobalExceptionHandler {
                 .body(error);
     }
 
+    @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFoundException(
             UserNotFoundException ex,
             HttpServletRequest request
@@ -202,6 +203,22 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
+                .body(error);
+    }
+
+    @ExceptionHandler(ProductUnavailableException.class)
+    public ResponseEntity<ErrorResponse> handleProductUnavailable(
+            ProductUnavailableException ex,
+            HttpServletRequest request
+    ) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
                 .body(error);
     }
 }

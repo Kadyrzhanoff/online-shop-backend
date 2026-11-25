@@ -1,5 +1,6 @@
 package com.example.onlineshop.service;
 
+import com.example.onlineshop.dto.AdminProductResponse;
 import com.example.onlineshop.dto.*;
 import com.example.onlineshop.entity.ClothingSize;
 import org.springframework.data.domain.Page;
@@ -27,4 +28,14 @@ public interface ProductService {
     void deleteVariant(Long variantId);
 
     void deleteProduct(Long productId);
+
+    AdminProductResponse getAdminProductById(Long id);
+
+    Page<AdminProductResponse> getAdminProducts(
+            Boolean active,
+            int page,
+            int size
+    );
+
+    AdminProductResponse restoreProduct(Long id);
 }

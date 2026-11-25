@@ -37,7 +37,7 @@ public class FavoriteServiceImpl implements FavoriteService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(UserNotFoundException::new);
 
-        Product product = productRepository.findById(productId)
+        Product product = productRepository.findByIdAndActiveTrue(productId)
                 .orElseThrow(() ->
                         new ProductNotFoundException(productId));
 
@@ -55,13 +55,13 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<FavoriteResponse> getFavorites(String username) {
 
         User user = userRepository.findByUsername(username)
                 .orElseThrow(UserNotFoundException::new);
 
-        List<Favorite> favorites = favoriteRepository.findByUserId(user.getId());
+        List<Favorite> favorites = favoriteRepository.findByUserIdAndProductActiveTrue(user.getId());
 
         return favorites.stream()
                 .map(this::toFavoriteResponse)
@@ -87,7 +87,7 @@ public class FavoriteServiceImpl implements FavoriteService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(UserNotFoundException::new);
 
-        return favoriteRepository.existsByUserIdAndProductId(user.getId(), productId);
+        return favoriteRepository.existsByUserIdAndProductIdAndProductActiveTrue(user.getId(), productId);
     }
 
     private FavoriteResponse toFavoriteResponse(Favorite favorite) {

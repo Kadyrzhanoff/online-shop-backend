@@ -1,13 +1,13 @@
 package com.example.onlineshop.controller;
 
 
-import com.example.onlineshop.dto.ProductCreateRequest;
-import com.example.onlineshop.dto.ProductResponse;
-import com.example.onlineshop.dto.ProductUpdateRequest;
-import com.example.onlineshop.dto.ProductVariantRequest;
-import com.example.onlineshop.service.impl.ProductServiceImpl;
+import com.example.onlineshop.dto.*;
+import com.example.onlineshop.service.ProductService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ProductController {
 
-    private final ProductServiceImpl productService;
+    private final ProductService productService;
 
     @PostMapping
     public ResponseEntity<ProductResponse> createProduct(
@@ -32,11 +32,11 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductResponse> getProductById(
+    public ResponseEntity<AdminProductResponse> getProductById(
             @PathVariable Long id
     ){
         return ResponseEntity
-                .ok(productService.getProductById(id));
+                .ok(productService.getAdminProductById(id));
     }
 
     @PatchMapping("/{id}")
@@ -67,5 +67,32 @@ public class ProductController {
         productService.deleteProduct(productId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping()
+    public ResponseEntity<Page<AdminProductResponse>> getAdminProducts(
+            @RequestParam(required = false)
+            Boolean active,
+
+            @RequestParam(defaultValue = "0")
+            @Min(0)
+            int page,
+
+            @RequestParam(defaultValue = "10")
+            @Min(1) @Max(100)
+            int size
+    ) {
+        Page<AdminProductResponse> response = productService.getAdminProducts(active, page, size);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("{id}/restore")
+    public ResponseEntity<AdminProductResponse> restoreProduct(
+            @PathVariable Long id
+    ){
+        AdminProductResponse response = productService.restoreProduct(id);
+
+        return ResponseEntity.ok(response);
     }
 }
