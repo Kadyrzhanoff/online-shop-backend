@@ -7,5 +7,6 @@ public record ProductVariantResponse (
         String color,
         String colorImageUrl,
         String productImageUrl,
-        List<VariantStockResponse> stocks
+        List<VariantStockResponse> stocks,
+        List<ProductImageResponse> images
 ) { }
