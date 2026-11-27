@@ -2,6 +2,7 @@ package com.example.onlineshop.service.impl;
 
 
 import com.example.onlineshop.dto.FavoriteResponse;
+import com.example.onlineshop.dto.ProductImageResponse;
 import com.example.onlineshop.entity.Favorite;
 import com.example.onlineshop.entity.Product;
 import com.example.onlineshop.entity.ProductVariant;
@@ -13,6 +14,7 @@ import com.example.onlineshop.repository.ProductRepository;
 import com.example.onlineshop.repository.ProductVariantRepository;
 import com.example.onlineshop.repository.UserRepository;
 import com.example.onlineshop.service.FavoriteService;
+import com.example.onlineshop.service.ProductImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +29,7 @@ public class FavoriteServiceImpl implements FavoriteService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final ProductVariantRepository productVariantRepository;
+    private final ProductImageService productImageService;
 
     @Override
     @Transactional
@@ -97,9 +100,19 @@ public class FavoriteServiceImpl implements FavoriteService {
         List<ProductVariant> variants =
                 productVariantRepository.findByProductId(product.getId());
 
-        String imageUrl = variants.isEmpty()
-                ? null
-                : variants.get(0).getProductImageUrl();
+        String imageUrl = null;
+
+        if (!variants.isEmpty()) {
+
+            List<ProductImageResponse> images =
+                    productImageService.getImages(
+                            variants.getFirst().getId()
+                    );
+
+            if (!images.isEmpty()) {
+                imageUrl = images.getFirst().imageUrl();
+            }
+        }
 
         return new FavoriteResponse(
                 favorite.getId(),

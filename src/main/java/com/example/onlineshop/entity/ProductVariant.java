@@ -19,8 +19,6 @@ public class ProductVariant {
 
     private String colorImageUrl;
 
-    private String productImageUrl;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;

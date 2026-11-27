@@ -5,10 +5,8 @@ import com.example.onlineshop.dto.*;
 import com.example.onlineshop.entity.*;
 import com.example.onlineshop.exception.ProductNotFoundException;
 import com.example.onlineshop.exception.VariantNotFoundException;
-import com.example.onlineshop.repository.CategoryRepository;
-import com.example.onlineshop.repository.ProductRepository;
-import com.example.onlineshop.repository.ProductVariantRepository;
-import com.example.onlineshop.repository.VariantStockRepository;
+import com.example.onlineshop.repository.*;
+import com.example.onlineshop.service.ProductImageService;
 import com.example.onlineshop.service.ProductService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +30,8 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
     private final ProductVariantRepository productVariantRepository;
     private final VariantStockRepository variantStockRepository;
+    private final ProductImageRepository productImageRepository;
+    private final ProductImageService productImageService;
 
     @Override
     @Transactional
@@ -59,10 +59,16 @@ public class ProductServiceImpl implements ProductService {
 
             variant.setColor(variantRequest.color());
             variant.setColorImageUrl(variantRequest.colorImageUrl());
-            variant.setProductImageUrl(variantRequest.productImageUrl());
             variant.setProduct(savedProduct);
 
             ProductVariant savedVariant = productVariantRepository.save(variant);
+
+            if (variantRequest.productImageUrl() != null) {
+                productImageService.setMainImage(
+                        savedVariant.getId(),
+                        variantRequest.productImageUrl()
+                );
+            }
 
             Set<ClothingSize> usedSizes = new HashSet<>();
 
@@ -114,13 +120,29 @@ public class ProductServiceImpl implements ProductService {
 
             totalStock += variantTotal;
 
+            List<ProductImageResponse> images =
+                    productImageRepository
+                            .findByVariantIdOrderBySortOrderAsc(variant.getId())
+                            .stream()
+                            .map(image -> new ProductImageResponse(
+                                    image.getId(),
+                                    image.getImageUrl(),
+                                    image.getSortOrder()
+                            ))
+                            .toList();
+
+            String mainImageUrl = images.isEmpty()
+                    ? null
+                    : images.getFirst().imageUrl();
+
             variantResponses.add(
                     new ProductVariantResponse(
                             variant.getId(),
                             variant.getColor(),
                             variant.getColorImageUrl(),
-                            variant.getProductImageUrl(),
-                            stockResponses
+                            mainImageUrl,
+                            stockResponses,
+                            images
                     )
             );
         }
@@ -248,9 +270,15 @@ public class ProductServiceImpl implements ProductService {
         variant.setProduct(product);
         variant.setColor(request.color());
         variant.setColorImageUrl(request.colorImageUrl());
-        variant.setProductImageUrl(request.productImageUrl());
 
-        productVariantRepository.save(variant);
+        ProductVariant savedVariant = productVariantRepository.save(variant);
+
+        if (request.productImageUrl() != null) {
+            productImageService.setMainImage(
+                    savedVariant.getId(),
+                    request.productImageUrl()
+            );
+        }
 
         Set<ClothingSize> usedSizes = new HashSet<>();
 
@@ -263,7 +291,7 @@ public class ProductServiceImpl implements ProductService {
             }
 
             VariantStock stock = new VariantStock();
-            stock.setVariant(variant);
+            stock.setVariant(savedVariant);
             stock.setSize(stockRequest.size());
             stock.setQuantity(stockRequest.quantity());
 
@@ -279,7 +307,7 @@ public class ProductServiceImpl implements ProductService {
             Long variantId,
             VariantUpdateRequest request
     ) {
-        ProductVariant variant = productVariantRepository.findById(variantId)
+        ProductVariant variant = productVariantRepository.findByIdForUpdate(variantId)
                 .orElseThrow(() -> new VariantNotFoundException(variantId));
 
         if (request.color() != null) {
@@ -291,7 +319,10 @@ public class ProductServiceImpl implements ProductService {
         }
 
         if (request.productImageUrl() != null) {
-            variant.setProductImageUrl(request.productImageUrl());
+            productImageService.setMainImage(
+                    variantId,
+                    request.productImageUrl()
+            );
         }
 
         Product product = variant.getProduct();
@@ -303,7 +334,7 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public void deleteVariant(Long variantId) {
 
-        ProductVariant variant = productVariantRepository.findById(variantId)
+        ProductVariant variant = productVariantRepository.findByIdForUpdate(variantId)
                 .orElseThrow(() -> new VariantNotFoundException(variantId));
 
         variantStockRepository.deleteByVariantId(variantId);
